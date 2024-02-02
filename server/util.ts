@@ -5,3 +5,12 @@ export const generateFourDigitCode = (): string => {
   // Convert the number to a string and return it
   return code.toString();
 };
+
+// TODO: reference the util package. Im getting some weird import error
+export const chooseRandomXO = (): "x" | "o" => {
+  // Generate a random number between 0 and 1
+  const randomNum = Math.random();
+
+  // If the number is less than 0.5, choose 'x', otherwise choose 'o'
+  return randomNum < 0.5 ? "x" : "o";
+};
