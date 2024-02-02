@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, View, TextInput } from "react-native";
+import { Button, View, TextInput, Alert } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -36,7 +36,30 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
   };
 
   const joinAGame = async (code: string) => {
-    console.log("foo");
+    const data = {
+      code,
+    };
+
+    // Create the POST request using fetch
+    const res = await fetch("http://localhost:9999/game/join", {
+      // Replace "/your-endpoint" with your actual endpoint
+      method: "POST", // Set the method to POST
+      headers: {
+        "Content-Type": "application/json", // Set the content type header
+      },
+      body: JSON.stringify(data), // Convert the JavaScript object to a JSON string
+    });
+
+    if (res.status >= 200 && res.status < 300) {
+      const json = await res.json();
+      console.log(json);
+      navigation.navigate("GameScreen", {
+        code: json.code,
+        pieces: json.pieces,
+      });
+    } else {
+      Alert.alert("Game not found");
+    }
   };
 
   return (

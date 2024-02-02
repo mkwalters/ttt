@@ -7,6 +7,7 @@ import { WebSocketServer } from "ws";
 const app = express();
 const port = 4000;
 const webSocketPort = 9999;
+app.use(express.json());
 
 const server = http.createServer(app);
 
@@ -18,6 +19,7 @@ interface GameObject {
 }
 
 const games: GameObject = {
+  // TODO: initialize with an empty object
   "1234": {
     board: Array(9).fill(null),
     piecesToPlay: "x",
@@ -51,6 +53,34 @@ app.post("/game/new", (_req, res) => {
 
   console.log(games);
   res.json({ pieces, code });
+});
+
+app.post("/game/join", (req, res) => {
+  console.log("joining new game");
+  console.log(`body: ${req.body}`);
+  let code = req.body.code;
+
+  if (!code) {
+    res.status(400);
+    res.json({ message: "code not provided" });
+  }
+
+  if (!games.hasOwnProperty(code)) {
+    res.status(404);
+    res.json({ message: "game not found" });
+  }
+  const game = games[code];
+
+  if (game.status !== "pending") {
+    res.status(404);
+    res.json({ message: "game is not joinable" });
+  }
+
+  game.status = "active"; // TODO: check this
+  games[code] = game;
+
+  console.log(games);
+  res.json({ pieces: game.creatorPieces === "x" ? "o" : "x", code });
 });
 
 app.listen(webSocketPort, () => {
