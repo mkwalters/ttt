@@ -13,27 +13,29 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation }) => {
   const [isGameActive, setIsGameActive] = useState<boolean>(true);
 
   useEffect(() => {
-    // Connect to WebSocket server //TODO: implement websocket server
-    // const ws = new WebSocket("ws://your-websocket-server-url");
-    // ws.onopen = () => {
-    //   console.log("Connected to the server");
-    // };
-    // ws.onmessage = (e: { data: string }) => {
-    //   // Received a message from the server
-    //   const message = JSON.parse(e.data);
-    //   if (message.type === "move") {
-    //     makeMove(message.index, message.player, false);
-    //   }
-    // };
-    // ws.onerror = (e: { message: string }) => {
-    //   console.log(e.message);
-    // };
-    // ws.onclose = (e: CloseEvent) => {
-    //   console.log("Disconnected from the server");
-    // };
-    // return () => {
-    //   ws.close();
-    // };
+    const connectWebSocket = () => {
+      const ws = new WebSocket("ws://localhost:4000");
+
+      // Connection opened
+      ws.onopen = (event) => {
+        console.log("WebSocket is open now.");
+      };
+
+      // Listen for messages
+      ws.onmessage = (event: WebSocketMessageEvent) => {
+        console.log("Message from server ", event.data);
+      };
+
+      // Listen for possible errors
+      ws.onerror = (event) => {
+        console.error("WebSocket error observed:", event);
+      };
+
+      // Listen for when the connection is closed
+      ws.onclose = (event) => {
+        console.log("WebSocket is closed now.");
+      };
+    };
   }, []);
 
   const makeMove = (

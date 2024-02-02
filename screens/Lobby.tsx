@@ -13,10 +13,10 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Button
-        title="Go to Game"
+        title="go to game"
         onPress={() => navigation.navigate("GameScreen")}
       />
-      <Button title="Create a game" onPress={() => connectWebSocket()} />
+      <Button title="Create a game" onPress={() => createAGame()} />
       <Button
         title="Button 2"
         onPress={() => console.log("Button 2 pressed")}
@@ -25,28 +25,23 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
   );
 };
 
-const connectWebSocket = () => {
-  const ws = new WebSocket("ws://localhost:4000");
-
-  // Connection opened
-  ws.onopen = (event) => {
-    console.log("WebSocket is open now.");
+const createAGame = async () => {
+  const data = {
+    key: "value", // Replace this with your actual data
   };
 
-  // Listen for messages
-  ws.onmessage = (event: WebSocketMessageEvent) => {
-    console.log("Message from server ", event.data);
-  };
+  // Create the POST request using fetch
+  const res = await fetch("http://localhost:9999/game/new", {
+    // Replace "/your-endpoint" with your actual endpoint
+    method: "POST", // Set the method to POST
+    headers: {
+      "Content-Type": "application/json", // Set the content type header
+    },
+    body: JSON.stringify(data), // Convert the JavaScript object to a JSON string
+  });
 
-  // Listen for possible errors
-  ws.onerror = (event) => {
-    console.error("WebSocket error observed:", event);
-  };
-
-  // Listen for when the connection is closed
-  ws.onclose = (event) => {
-    console.log("WebSocket is closed now.");
-  };
+  const json = await res.json();
+  console.log(json);
 };
 
 export default Lobby;
