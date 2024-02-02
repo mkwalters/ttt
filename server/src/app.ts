@@ -14,7 +14,6 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 interface GameObject {
-  // TODO: define game schema here
   [key: string]: Game;
 }
 
