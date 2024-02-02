@@ -7,35 +7,35 @@ import { RootStackParamList } from "../App";
 
 type GameScreenProps = NativeStackScreenProps<RootStackParamList, "GameScreen">;
 
-const GameScreen: React.FC<GameScreenProps> = ({ navigation }) => {
+const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const [board, setBoard] = useState<Array<string | null>>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<string>("X");
   const [isGameActive, setIsGameActive] = useState<boolean>(true);
 
+  const { code, pieces } = route.params;
+
   useEffect(() => {
-    const connectWebSocket = () => {
-      const ws = new WebSocket("ws://localhost:4000");
-
-      // Connection opened
-      ws.onopen = (event) => {
-        console.log("WebSocket is open now.");
-      };
-
-      // Listen for messages
-      ws.onmessage = (event: WebSocketMessageEvent) => {
-        console.log("Message from server ", event.data);
-      };
-
-      // Listen for possible errors
-      ws.onerror = (event) => {
-        console.error("WebSocket error observed:", event);
-      };
-
-      // Listen for when the connection is closed
-      ws.onclose = (event) => {
-        console.log("WebSocket is closed now.");
-      };
-    };
+    console.log(`code: ${code}`);
+    console.log(`pieces: ${pieces}`);
+    // const connectWebSocket = () => {
+    //   const ws = new WebSocket("ws://localhost:4000");
+    //   // Connection opened
+    //   ws.onopen = (event) => {
+    //     console.log("WebSocket is open now.");
+    //   };
+    //   // Listen for messages
+    //   ws.onmessage = (event: WebSocketMessageEvent) => {
+    //     console.log("Message from server ", event.data);
+    //   };
+    //   // Listen for possible errors
+    //   ws.onerror = (event) => {
+    //     console.error("WebSocket error observed:", event);
+    //   };
+    //   // Listen for when the connection is closed
+    //   ws.onclose = (event) => {
+    //     console.log("WebSocket is closed now.");
+    //   };
+    // };
   }, []);
 
   const makeMove = (

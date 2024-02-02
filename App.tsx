@@ -8,7 +8,7 @@ import Lobby from "./screens/Lobby"; // You'll create this next
 
 export type RootStackParamList = {
   Lobby: undefined;
-  GameScreen: undefined;
+  GameScreen: { code: string; pieces: "x" | "o" };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
