@@ -39,6 +39,21 @@ wss.on("connection", (ws, req) => {
     rooms[room].add(ws);
 
     ws.on("message", (message) => {
+      // It is CRITICAL that we don't update the game unless both players are in the game and listening to the broadcast.
+      // a better way to do this might be to grab the game state from the server when you get into game screen.
+      // that way a player a can join, play, leave, join, play and everything should stay in sync and healthy.
+      // TODO: there are definitely some bugs present here
+      const playerCountInGame = rooms[room].size;
+      if (playerCountInGame < 2) {
+        rooms[room].forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            console.log("game is not ready...");
+            client.send(JSON.stringify("game not ready"));
+          }
+        });
+        return;
+      }
+
       const newBoard = JSON.parse(message.toString()).board as Array<
         string | null
       >;
