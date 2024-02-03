@@ -74,7 +74,7 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>this should work</Text>
+      <Text>tic tac toe</Text>
       <Button title="Create a game" onPress={() => createAGame()} />
       <TextInput
         style={styles.input}

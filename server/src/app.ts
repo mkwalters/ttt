@@ -30,18 +30,39 @@ const games: GameObject = {
 
 const rooms: { [key: string]: Set<any> } = {};
 
-wss.on("connection", function connection(ws, req) {
-  console.log("a new connection has been established");
+wss.on("connection", (ws, req) => {
+  // Extract room from URL, e.g., /?room=abc
+  const requestUrl = req.url || "/";
+  const room = new URL(
+    requestUrl,
+    `http://${req.headers.host}`
+  ).searchParams.get("room");
 
-  ws.on("error", console.error);
+  console.log(`found room ${room}`);
 
-  ws.on("message", function message(data) {
-    console.log("received: %s", data);
-  });
+  if (room) {
+    if (!rooms[room]) {
+      rooms[room] = new Set();
+    }
+    // Add the connection to the room
+    rooms[room].add(ws);
 
-  ws.send("welcome!");
+    ws.on("message", (message) => {
+      console.log(`message recieved on server ${message}`);
+      // Broadcast to all clients in the room
+      rooms[room].forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    });
+
+    ws.on("close", () => {
+      rooms[room].delete(ws); // Remove the connection from the room
+      ws.close();
+    });
+  }
 });
-
 app.post("/game/new", (_req, res) => {
   console.log("hitting new game");
   let code = generateFourDigitCode();

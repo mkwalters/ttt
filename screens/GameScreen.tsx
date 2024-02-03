@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TouchableOpacity, Text, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Alert,
+  Platform,
+} from "react-native";
 // import WebSocket from "react-native-websocket"; // TODO: there doesnt seem to be types for this package
 import { styles } from "../styles/Gamescreen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -9,33 +16,38 @@ type GameScreenProps = NativeStackScreenProps<RootStackParamList, "GameScreen">;
 
 const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const [board, setBoard] = useState<Array<string | null>>(Array(9).fill(null));
-  const [currentPlayer, setCurrentPlayer] = useState<string>("X");
+  const [currentPlayerToMove, setCurrentPlayerToMove] = useState<string>("x");
   const [isGameActive, setIsGameActive] = useState<boolean>(true);
 
   const { code, pieces } = route.params;
+  let domain = "localhost";
+  if (Platform.OS === "android") {
+    domain = "10.0.2.2";
+  }
+  const ws = new WebSocket(`ws://${domain}:4000?room=${code}`);
 
   useEffect(() => {
     console.log(`code: ${code}`);
     console.log(`pieces: ${pieces}`);
-    // const connectWebSocket = () => {
-    //   const ws = new WebSocket("ws://localhost:4000");
-    //   // Connection opened
-    //   ws.onopen = (event) => {
-    //     console.log("WebSocket is open now.");
-    //   };
-    //   // Listen for messages
-    //   ws.onmessage = (event: WebSocketMessageEvent) => {
-    //     console.log("Message from server ", event.data);
-    //   };
-    //   // Listen for possible errors
-    //   ws.onerror = (event) => {
-    //     console.error("WebSocket error observed:", event);
-    //   };
-    //   // Listen for when the connection is closed
-    //   ws.onclose = (event) => {
-    //     console.log("WebSocket is closed now.");
-    //   };
-    // };
+    const connectWebSocket = () => {
+      // Connection opened
+      ws.onopen = (event) => {
+        console.log("WebSocket is open now.");
+      };
+      // Listen for messages
+      ws.onmessage = (event: WebSocketMessageEvent) => {
+        console.log("Message from server ", event.data);
+      };
+      // Listen for possible errors
+      ws.onerror = (event) => {
+        console.error("WebSocket error observed:", event);
+      };
+      // Listen for when the connection is closed
+      ws.onclose = (event) => {
+        console.log("WebSocket is closed now.");
+      };
+    };
+    connectWebSocket();
   }, []);
 
   const makeMove = (
@@ -43,7 +55,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
     player: string,
     sendToServer: boolean = true
   ) => {
-    if (board[index] || !isGameActive) return;
+    if (board[index] || !isGameActive || currentPlayerToMove !== pieces) return;
 
     const newBoard = [...board];
     newBoard[index] = player;
@@ -57,12 +69,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
       Alert.alert("It's a draw!");
       setIsGameActive(false);
     } else {
-      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+      setCurrentPlayerToMove(currentPlayerToMove === "x" ? "o" : "x");
     }
 
     if (sendToServer) {
       // Send move to server
-      // ws.send(JSON.stringify({ type: "move", index, player })); //TODO: implement me
+
+      // interface Game {
+      //   board: Array<string | null>;
+      //   piecesToPlay: string;
+      //   status: string;
+      //   creatorPieces: string;
+      // }
+      ws.send(JSON.stringify({ board, piecesToPlay: currentPlayerToMove })); //TODO: implement me
     }
   };
 
@@ -89,12 +108,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+      <Text>You are playing with the {pieces} pieces</Text>
+      <Text>{pieces} to move</Text>
       <View style={styles.board}>
         {board.map((cell, index) => (
           <TouchableOpacity
             key={index}
             style={styles.cell}
-            onPress={() => makeMove(index, currentPlayer)}
+            onPress={() => makeMove(index, currentPlayerToMove)}
           >
             <Text style={styles.cellText}>{cell}</Text>
           </TouchableOpacity>
