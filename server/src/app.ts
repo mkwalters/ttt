@@ -28,7 +28,9 @@ const games: GameObject = {
   },
 };
 
-wss.on("connection", function connection(ws) {
+const rooms: { [key: string]: Set<any> } = {};
+
+wss.on("connection", function connection(ws, req) {
   console.log("a new connection has been established");
 
   ws.on("error", console.error);
