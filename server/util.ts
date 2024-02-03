@@ -8,7 +8,6 @@ export const generateFourDigitCode = (): string => {
   return code.toString();
 };
 
-// TODO: reference the util package. Im getting some weird import error
 export const chooseRandomXO = (): "x" | "o" => {
   // Generate a random number between 0 and 1
   const randomNum = Math.random();
