@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { LogBoxStatic } from "react-native";
 // import { generateFourDigitCode, chooseRandomXO } from "../util";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 const app = express();
 const port = 4000;
@@ -28,7 +28,7 @@ const games: GameObject = {
   },
 };
 
-const rooms: { [key: string]: Set<any> } = {};
+const rooms: { [key: string]: Set<WebSocket> } = {};
 
 wss.on("connection", (ws, req) => {
   // Extract room from URL, e.g., /?room=abc
@@ -42,7 +42,7 @@ wss.on("connection", (ws, req) => {
 
   if (room) {
     if (!rooms[room]) {
-      rooms[room] = new Set();
+      rooms[room] = new Set<WebSocket>();
     }
     // Add the connection to the room
     rooms[room].add(ws);
@@ -52,14 +52,17 @@ wss.on("connection", (ws, req) => {
 
       const data = message.toString();
       const parsedMessage = JSON.parse(data);
-      const board = parsedMessage.board as Array<string | null>;
+      const newBoard = parsedMessage.board as Array<string | null>;
 
-      board.forEach((e) => console.log(e));
-      console.log(`board: ${board}`);
+      games[room].board = newBoard;
+
+      const playerThatJustMoved = games[room].piecesToPlay;
+      games[room].piecesToPlay = playerThatJustMoved === "x" ? "o" : "x";
+
       // Broadcast to all clients in the room
       rooms[room].forEach((client) => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(message);
+        if (client.readyState === WebSocket.OPEN) {
+          client.send("about to ship the game state");
         }
       });
     });
