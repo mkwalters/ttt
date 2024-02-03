@@ -15,42 +15,42 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const { code, pieces } = route.params;
   const ws = new WebSocket(`ws://${getDomain(Platform.OS)}:4000?room=${code}`);
 
+  // set up websocket when entering gamescreen
   useEffect(() => {
-    const connectWebSocket = () => {
-      // Connection opened
-      ws.onopen = (event) => {
-        console.log("WebSocket is open now.");
-      };
-      // Listen for messages from server
-      ws.onmessage = (event: WebSocketMessageEvent) => {
-        console.log("Message from server ", event.data);
-
-        const json = JSON.parse(event.data);
-        const newBoardFromServer = json.board as Array<string | null>;
-        const newPiecesToPlay = json.piecesToPlay as string;
-
-        const winner = checkWinner(newBoardFromServer);
-        if (winner) {
-          Alert.alert(`Player ${winner} has won!`);
-          setIsGameActive(false);
-        } else if (!newBoardFromServer.includes(null)) {
-          Alert.alert("It's a draw!");
-          setIsGameActive(false);
-        }
-
-        setBoard(newBoardFromServer);
-        setCurrentPlayerToMove(newPiecesToPlay);
-      };
-      // Listen for possible errors
-      ws.onerror = (event) => {
-        console.error("WebSocket error observed:", event);
-      };
-      // Listen for when the connection is closed
-      ws.onclose = (event) => {
-        console.log("WebSocket is closed now.");
-      };
+    // Connection opened
+    ws.onopen = (event) => {
+      console.log("WebSocket is open now.");
     };
-    connectWebSocket();
+    // Listen for messages from server
+    ws.onmessage = (event: WebSocketMessageEvent) => {
+      console.log("Message from server ", event.data);
+
+      const json = JSON.parse(event.data);
+      const newBoardFromServer = JSON.parse(event.data).board as Array<
+        string | null
+      >;
+      const newPiecesToPlay = json.piecesToPlay as string;
+
+      const winner = checkWinner(newBoardFromServer);
+      if (winner) {
+        Alert.alert(`Player ${winner} has won!`);
+        setIsGameActive(false);
+      } else if (!newBoardFromServer.includes(null)) {
+        Alert.alert("It's a draw!");
+        setIsGameActive(false);
+      }
+
+      setBoard(newBoardFromServer);
+      setCurrentPlayerToMove(newPiecesToPlay);
+    };
+    // Listen for possible errors
+    ws.onerror = (event) => {
+      console.error("WebSocket error observed:", event);
+    };
+    // Listen for when the connection is closed
+    ws.onclose = (event) => {
+      console.log("WebSocket is closed now.");
+    };
   }, []);
 
   const makeMove = (index: number, player: string) => {
@@ -71,7 +71,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Text>You are playing with the {pieces} pieces</Text>
-      <Text>{currentPlayerToMove} to move</Text>
+      {pieces === currentPlayerToMove ? (
+        <Text>Your turn to play</Text>
+      ) : (
+        <Text>Waiting for opponent's move...</Text>
+      )}
+
       <View style={styles.board}>
         {board.map((cell, index) => (
           <TouchableOpacity
@@ -83,7 +88,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
           </TouchableOpacity>
         ))}
       </View>
+      <Text>Join code: {code} </Text>
     </View>
   );
 };
+
 export default GameScreen;

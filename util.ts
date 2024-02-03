@@ -26,3 +26,35 @@ export const getDomain = (operatingSystem: string): string => {
   }
   return domain;
 };
+
+export const createGame = async (operatingSystem: string) => {
+  const res = await fetch(
+    `http://${getDomain(operatingSystem)}:9999/game/new`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return res;
+};
+
+export const joinGame = async (code: string, operatingSystem: string) => {
+  const data = {
+    code,
+  };
+
+  const res = await fetch(
+    `http://${getDomain(operatingSystem)}:9999/game/join`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data), // Convert the JavaScript object to a JSON string
+    }
+  );
+  return res;
+};
