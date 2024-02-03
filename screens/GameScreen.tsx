@@ -37,6 +37,16 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
       // Listen for messages
       ws.onmessage = (event: WebSocketMessageEvent) => {
         console.log("Message from server ", event.data);
+
+        const json = JSON.parse(event.data);
+        const newBoardFromServer = json.board as Array<string | null>;
+        const newPiecesToPlay = json.piecesToPlay as string;
+
+        console.log(`board recieved: ${json.board as Array<string | null>}`);
+        console.log(`piecesToPlay recieved: ${json.piecesToPlay as string}`);
+
+        setBoard(newBoardFromServer);
+        setCurrentPlayerToMove(newPiecesToPlay);
       };
       // Listen for possible errors
       ws.onerror = (event) => {

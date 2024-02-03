@@ -62,7 +62,8 @@ wss.on("connection", (ws, req) => {
       // Broadcast to all clients in the room
       rooms[room].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send("about to ship the game state");
+          const newGameState = games[room];
+          client.send(JSON.stringify(newGameState));
         }
       });
     });
@@ -81,8 +82,7 @@ app.post("/game/new", (_req, res) => {
     code = generateFourDigitCode();
   }
 
-  // const pieces = chooseRandomXO();
-  const pieces = "x";
+  const pieces = chooseRandomXO();
   games[code] = initializeGame(pieces);
 
   console.log(games);
