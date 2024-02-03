@@ -58,3 +58,18 @@ export const joinGame = async (code: string, operatingSystem: string) => {
   );
   return res;
 };
+
+export const getRandomCongrats = (): string => {
+  return getRandomElement(["Excelsior!", "Great job!", "You rock!"]);
+};
+
+export const getRandomCondolences = (): string => {
+  return getRandomElement([
+    "Better luck next time!",
+    "You'll get 'em next time!",
+    "Don't worry, it's how champions are built!",
+  ]);
+};
+const getRandomElement = (items: any): string => {
+  return items[Math.floor(Math.random() * items.length)];
+};

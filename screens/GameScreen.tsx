@@ -3,7 +3,12 @@ import { View, TouchableOpacity, Text, Alert, Platform } from "react-native";
 import { styles } from "../styles/Gamescreen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { checkWinner, getDomain } from "../util";
+import {
+  checkWinner,
+  getDomain,
+  getRandomCongrats,
+  getRandomCondolences,
+} from "../util";
 
 type GameScreenProps = NativeStackScreenProps<RootStackParamList, "GameScreen">;
 
@@ -33,7 +38,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
 
       const winner = checkWinner(newBoardFromServer);
       if (winner) {
-        Alert.alert(`Player ${winner} has won!`);
+        if (winner === pieces) {
+          Alert.alert(`You won! ${getRandomCongrats()}`);
+        } else {
+          Alert.alert(`You lost.  ${getRandomCondolences()}`);
+        }
         setIsGameActive(false);
       } else if (!newBoardFromServer.includes(null)) {
         Alert.alert("It's a draw!");

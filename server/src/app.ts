@@ -48,6 +48,8 @@ wss.on("connection", (ws, req) => {
       games[room].board = newBoard;
 
       const playerThatJustMoved = games[room].piecesToPlay;
+      // it's worth noting that using primitive strings like "x" and "o" is very dangerous.
+      // someone will eventually use the wrong casing and cause a nasty bug (x!== X)
       games[room].piecesToPlay = playerThatJustMoved === "x" ? "o" : "x";
 
       // Broadcast to all clients in the room
