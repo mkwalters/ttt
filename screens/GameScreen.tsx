@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, Alert, Platform } from "react-native";
-import { styles } from "../styles/Gamescreen";
+import { styles } from "../styles/style";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
 import {
@@ -79,11 +79,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Text>You are playing with the {pieces} pieces</Text>
+      <Text style={styles.gameInfo}>
+        You are playing with the {pieces} pieces
+      </Text>
       {pieces === currentPlayerToMove ? (
-        <Text>Your turn to play</Text>
+        <Text style={styles.gameInfo}>Your turn to play</Text>
       ) : (
-        <Text>Waiting for opponent's move...</Text>
+        <Text style={styles.gameInfo}>Waiting for opponent's move...</Text>
       )}
 
       <View style={styles.board}>

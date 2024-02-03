@@ -1,6 +1,15 @@
 import { StyleSheet } from "react-native";
-// TODO: rename this file to just be generic
+
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 48,
+    fontWeight: "bold",
+    marginBottom: 200,
+  },
+  gameInfo: {
+    fontSize: 20,
+    marginBottom: 40,
+  },
   container: {
     flex: 1,
     justifyContent: "center",

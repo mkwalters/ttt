@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, View, TextInput, Alert, Text, Platform } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { styles } from "../styles/Gamescreen";
+import { styles } from "../styles/style";
 import { getDomain, createGame, joinGame } from "../util";
 
 type LobbyProps = NativeStackScreenProps<RootStackParamList, "Lobby">;
@@ -12,7 +12,7 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Tic Tac Toe</Text>
+      <Text style={styles.title}>Tic Tac Toe</Text>
       <Button
         title="Create a game"
         onPress={async () => {
