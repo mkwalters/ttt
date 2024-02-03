@@ -21,6 +21,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const ws = new WebSocket(`ws://${getDomain(Platform.OS)}:4000?room=${code}`);
 
   // set up websocket when entering gamescreen
+  // TODO: update the board when we enter. That way a player can join, play, leave, join, play, leave....
+  // chess.com would be a good UI/UX example of what should be happening
   useEffect(() => {
     // Connection opened
     ws.onopen = (event) => {
@@ -29,6 +31,17 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
     // Listen for messages from server
     ws.onmessage = (event: WebSocketMessageEvent) => {
       console.log("Message from server ", event.data);
+
+      const potentialSyncError = JSON.parse(event.data) as string;
+
+      // this is pretty bad ux
+      // ideally a user should be able to make moves even if there opponent is gone
+      // right now, there's now way to know when the game is ready, so a user would need to just try to make their first move until it succeeds
+      if (potentialSyncError === "game not ready") {
+        // should not be referencing a raw string in both files
+        Alert.alert(`Not all players have joined the game`);
+        return;
+      }
 
       const json = JSON.parse(event.data);
       const newBoardFromServer = JSON.parse(event.data).board as Array<
@@ -67,7 +80,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
 
     const newBoard = [...board];
     newBoard[index] = player;
-    setBoard(newBoard);
 
     // Send new board to server
     ws.send(
