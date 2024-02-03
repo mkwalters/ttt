@@ -49,6 +49,13 @@ wss.on("connection", (ws, req) => {
 
     ws.on("message", (message) => {
       console.log(`message recieved on server ${message}`);
+
+      const data = message.toString();
+      const parsedMessage = JSON.parse(data);
+      const board = parsedMessage.board as Array<string | null>;
+
+      board.forEach((e) => console.log(e));
+      console.log(`board: ${board}`);
       // Broadcast to all clients in the room
       rooms[room].forEach((client) => {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -71,7 +78,8 @@ app.post("/game/new", (_req, res) => {
     code = generateFourDigitCode();
   }
 
-  const pieces = chooseRandomXO();
+  // const pieces = chooseRandomXO();
+  const pieces = "x";
   games[code] = initializeGame(pieces);
 
   console.log(games);
