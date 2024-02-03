@@ -1,13 +1,14 @@
 import express from "express";
 import http from "http";
-import { LogBoxStatic } from "react-native";
 import { generateFourDigitCode, chooseRandomXO, initializeGame } from "../util";
 import { WebSocketServer, WebSocket } from "ws";
 import { Game, GameCache } from "../model";
 
 const app = express();
-const port = 4000;
-const webSocketPort = 9999;
+
+const webSocketPort = 4000;
+const apiPort = 9999;
+
 app.use(express.json());
 
 const server = http.createServer(app);
@@ -29,8 +30,6 @@ wss.on("connection", (ws, req) => {
     `http://${req.headers.host}`
   ).searchParams.get("room");
 
-  console.log(`found room ${room}`);
-
   if (room) {
     if (!rooms[room]) {
       rooms[room] = new Set<WebSocket>();
@@ -40,8 +39,6 @@ wss.on("connection", (ws, req) => {
     rooms[room].add(ws);
 
     ws.on("message", (message) => {
-      console.log(`message recieved on server ${message}`);
-
       const parsedMessage = JSON.parse(message.toString());
       const newBoard = parsedMessage.board as Array<string | null>;
 
@@ -83,8 +80,6 @@ app.post("/game/new", (_req, res) => {
 });
 
 app.post("/game/join", (req, res) => {
-  console.log("joining new game");
-  console.log(`body: ${req.body}`);
   let code = req.body.code;
 
   if (!code) {
@@ -100,14 +95,13 @@ app.post("/game/join", (req, res) => {
 
   games[code] = game;
 
-  console.log(games);
   res.json({ pieces: game.creatorPieces === "x" ? "o" : "x", code });
 });
 
-app.listen(webSocketPort, () => {
-  console.log(`app running on http://localhost:${webSocketPort}`);
+app.listen(apiPort, () => {
+  console.log(`app running on http://localhost:${apiPort}`);
 });
 
-server.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+server.listen(webSocketPort, () => {
+  console.log(`web socket server running on ws://localhost:${webSocketPort}`);
 });
