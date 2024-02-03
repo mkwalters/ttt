@@ -5,21 +5,21 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Game, GameCache } from "../model";
 
 const app = express();
-
+app.use(express.json());
+const server = http.createServer(app);
 const webSocketPort = 4000;
 const apiPort = 9999;
-
-app.use(express.json());
-
-const server = http.createServer(app);
 
 // Initialize a WebSocket server
 const wss = new WebSocketServer({ server });
 
 // This is where we will store our games
 // the key is the join code and the value is a Game interface
+// We would eventually want to move this to a proper database
 const games: GameCache = {};
 
+// We will silo each client into a "room" based on their join code.
+// This will allow us to only broadcast to the proper games
 const rooms: { [key: string]: Set<WebSocket> } = {};
 
 wss.on("connection", (ws, req) => {
@@ -39,9 +39,12 @@ wss.on("connection", (ws, req) => {
     rooms[room].add(ws);
 
     ws.on("message", (message) => {
-      const parsedMessage = JSON.parse(message.toString());
-      const newBoard = parsedMessage.board as Array<string | null>;
+      const newBoard = JSON.parse(message.toString()).board as Array<
+        string | null
+      >;
 
+      // we should have a validation step here and not trust our client. things like...
+      // did the correct player just move? Did they make a legal move? is the data malformed?
       games[room].board = newBoard;
 
       const playerThatJustMoved = games[room].piecesToPlay;
