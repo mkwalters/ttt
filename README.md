@@ -1,7 +1,7 @@
 Welcome to Tic Tac Toe. This app features a react-native app and a node server. The client and server use web sockets to coordinate games. Let's get our app installed....
 
 
-**INSTALL Xcode and Android Studio**
+** # Install Xcode and Android Studio**
 
 You can install Xcode via the OSX App store. Be sure to also install an iOS emulator. 
 
@@ -33,3 +33,7 @@ To start the server, simply run, `cd server && npm i && npm start`
 **Support**
  Please email me at `mitchellkellywalters@gmail.com` if you ever any questions, concerns or feature requests. I would be happy to help you get up and running. 
 
+ **Pending features**
+- Storing games in a database
+- Using websockets in the lobby. This would allow us to only move users into the game screen only when everyone is ready. 
+- Making the game feel more stateless. Players should ideally be able to join, play, leave, join, play.
