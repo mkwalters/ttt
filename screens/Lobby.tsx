@@ -23,10 +23,8 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
       domain = "10.0.2.2";
     }
 
-    //98.42.95.175
     // Create the POST request using fetch
     const res = await fetch(`http://${domain}:9999/game/new`, {
-      // Replace "/your-endpoint" with your actual endpoint
       method: "POST", // Set the method to POST
       headers: {
         "Content-Type": "application/json", // Set the content type header
@@ -79,7 +77,7 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Enter code"
-        keyboardType="numeric" // Ensures only numeric keypad is shown
+        keyboardType="numeric"
         value={joinCode}
         onChangeText={(text: string) =>
           setJoinCode(text.replace(/[^0-9]/g, ""))

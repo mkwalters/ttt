@@ -73,15 +73,12 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
     }
 
     if (sendToServer) {
-      // Send move to server
-
-      // interface Game {
-      //   board: Array<string | null>;
-      //   piecesToPlay: string;
-      //   status: string;
-      //   creatorPieces: string;
-      // }
-      ws.send(JSON.stringify({ board, piecesToPlay: currentPlayerToMove })); //TODO: implement me
+      // Send new board to server
+      ws.send(
+        JSON.stringify({
+          board: newBoard,
+        })
+      );
     }
   };
 
@@ -109,7 +106,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Text>You are playing with the {pieces} pieces</Text>
-      <Text>{pieces} to move</Text>
+      <Text>{currentPlayerToMove} to move</Text>
       <View style={styles.board}>
         {board.map((cell, index) => (
           <TouchableOpacity
