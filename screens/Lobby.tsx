@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, View, TextInput, Alert } from "react-native";
+import { Button, View, TextInput, Alert, Text, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -18,9 +18,14 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
       // TODO: this isnt needed
       key: "value", // Replace this with your actual data
     };
+    let domain = "localhost";
+    if (Platform.OS === "android") {
+      domain = "10.0.2.2";
+    }
 
+    //98.42.95.175
     // Create the POST request using fetch
-    const res = await fetch("http://localhost:9999/game/new", {
+    const res = await fetch(`http://${domain}:9999/game/new`, {
       // Replace "/your-endpoint" with your actual endpoint
       method: "POST", // Set the method to POST
       headers: {
@@ -40,8 +45,13 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
       code,
     };
 
+    let domain = "localhost";
+    if (Platform.OS === "android") {
+      domain = "10.0.2.2";
+    }
+
     // Create the POST request using fetch
-    const res = await fetch("http://localhost:9999/game/join", {
+    const res = await fetch(`http://${domain}:9999/game/join`, {
       // Replace "/your-endpoint" with your actual endpoint
       method: "POST", // Set the method to POST
       headers: {
@@ -64,6 +74,7 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>this should work</Text>
       <Button title="Create a game" onPress={() => createAGame()} />
       <TextInput
         style={styles.input}
