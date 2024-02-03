@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text,
-  Alert,
-  Platform,
-} from "react-native";
-// import WebSocket from "react-native-websocket"; // TODO: there doesnt seem to be types for this package
+import { View, TouchableOpacity, Text, Alert, Platform } from "react-native";
 import { styles } from "../styles/Gamescreen";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import { checkWinner, getDomain } from "../util";
 
 type GameScreenProps = NativeStackScreenProps<RootStackParamList, "GameScreen">;
 
@@ -20,21 +13,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const [isGameActive, setIsGameActive] = useState<boolean>(true);
 
   const { code, pieces } = route.params;
-  let domain = "localhost";
-  if (Platform.OS === "android") {
-    domain = "10.0.2.2";
-  }
-  const ws = new WebSocket(`ws://${domain}:4000?room=${code}`);
+  const ws = new WebSocket(`ws://${getDomain(Platform.OS)}:4000?room=${code}`);
 
   useEffect(() => {
-    console.log(`code: ${code}`);
-    console.log(`pieces: ${pieces}`);
     const connectWebSocket = () => {
       // Connection opened
       ws.onopen = (event) => {
         console.log("WebSocket is open now.");
       };
-      // Listen for messages
+      // Listen for messages from server
       ws.onmessage = (event: WebSocketMessageEvent) => {
         console.log("Message from server ", event.data);
 
@@ -42,8 +29,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
         const newBoardFromServer = json.board as Array<string | null>;
         const newPiecesToPlay = json.piecesToPlay as string;
 
-        console.log(`board recieved: ${json.board as Array<string | null>}`);
-        console.log(`piecesToPlay recieved: ${json.piecesToPlay as string}`);
+        const winner = checkWinner(newBoardFromServer);
+        if (winner) {
+          Alert.alert(`Player ${winner} has won!`);
+          setIsGameActive(false);
+        } else if (!newBoardFromServer.includes(null)) {
+          Alert.alert("It's a draw!");
+          setIsGameActive(false);
+        }
 
         setBoard(newBoardFromServer);
         setCurrentPlayerToMove(newPiecesToPlay);
@@ -60,57 +53,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
     connectWebSocket();
   }, []);
 
-  const makeMove = (
-    index: number,
-    player: string,
-    sendToServer: boolean = true
-  ) => {
+  const makeMove = (index: number, player: string) => {
     if (board[index] || !isGameActive || currentPlayerToMove !== pieces) return;
 
     const newBoard = [...board];
     newBoard[index] = player;
     setBoard(newBoard);
 
-    const winner = checkWinner(newBoard);
-    if (winner) {
-      Alert.alert(`Player ${winner} has won!`);
-      setIsGameActive(false);
-    } else if (!newBoard.includes(null)) {
-      Alert.alert("It's a draw!");
-      setIsGameActive(false);
-    } else {
-      setCurrentPlayerToMove(currentPlayerToMove === "x" ? "o" : "x");
-    }
-
-    if (sendToServer) {
-      // Send new board to server
-      ws.send(
-        JSON.stringify({
-          board: newBoard,
-        })
-      );
-    }
-  };
-
-  const checkWinner = (board: Array<string | null>) => {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a];
-      }
-    }
-    return null;
+    // Send new board to server
+    ws.send(
+      JSON.stringify({
+        board: newBoard,
+      })
+    );
   };
 
   return (
