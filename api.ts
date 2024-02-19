@@ -1,5 +1,6 @@
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { initializeGame } from "./util";
 
 export const addGame = async () => {
   // Create a reference to the Firestore service
@@ -7,12 +8,7 @@ export const addGame = async () => {
 
   try {
     // Add a new document with a generated ID
-    const docRef = await addDoc(gamesCollectionRef, {
-      name: "New Game",
-      genre: "Adventure",
-      releaseYear: 2023,
-      // Add other game details here
-    });
+    const docRef = await addDoc(gamesCollectionRef, initializeGame());
 
     console.log("Game added with ID: ", docRef.id);
   } catch (error) {
