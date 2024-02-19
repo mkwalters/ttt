@@ -4,6 +4,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
 import { styles } from "../styles/style";
 import { getDomain, createGame, joinGame } from "../util";
+import { addGame } from "../api";
 
 type LobbyProps = NativeStackScreenProps<RootStackParamList, "Lobby">;
 
@@ -16,11 +17,11 @@ const Lobby: React.FC<LobbyProps> = ({ navigation }) => {
       <Button
         title="Create a game"
         onPress={async () => {
-          const res = await createGame(Platform.OS);
-          const json = await res.json();
+          const res = await addGame();
+          // const json = await res.json();
           navigation.navigate("GameScreen", {
-            code: json.code,
-            pieces: json.pieces,
+            code: "1234", // TODO: set this correctly
+            pieces: "x",
           });
         }}
       />
