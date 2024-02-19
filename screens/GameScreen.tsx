@@ -9,6 +9,8 @@ import {
   getRandomCongrats,
   getRandomCondolences,
 } from "../util";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
 
 type GameScreenProps = NativeStackScreenProps<RootStackParamList, "GameScreen">;
 
@@ -20,11 +22,24 @@ const GameScreen: React.FC<GameScreenProps> = ({ navigation, route }) => {
   const { code, pieces } = route.params;
   const ws = new WebSocket(`ws://${getDomain(Platform.OS)}:4000?room=${code}`);
 
+  async function fetchData() {
+    const querySnapshot = await getDocs(collection(db, "items"));
+    const itemsList = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    console.log(itemsList);
+    return itemsList;
+  }
+
   // set up websocket when entering gamescreen
   // TODO: update the board when we enter. That way a player can join, play, leave, join, play, leave....
   // chess.com would be a good UI/UX example of what should be happening
   useEffect(() => {
     // Connection opened
+
+    fetchData();
+
     ws.onopen = (event) => {
       console.log("WebSocket is open now.");
     };
